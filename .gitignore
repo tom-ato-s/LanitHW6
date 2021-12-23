@@ -37,3 +37,8 @@ out/
 /target/
 
 /.idea/
+/target/
+/src/main/resources/my.properties
+/.idea/
+*.iml
+

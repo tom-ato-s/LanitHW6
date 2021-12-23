@@ -38,8 +38,9 @@ out/
 
 /.idea/
 /target/
-/src/main/resources/my.properties
 /.idea/
 *.iml
 
 /src/test/resources/
+mylogfile.log
+mylogfile.log

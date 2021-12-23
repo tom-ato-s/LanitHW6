@@ -110,7 +110,6 @@ public class PetApiTest {
                 .pathParam("petId", System.getProperty("petId"))
                 .when()
                 .get("/pet/{petId}")
-                .then()
-                .statusCode(404);
+                .then().statusCode(404);
     }
 }

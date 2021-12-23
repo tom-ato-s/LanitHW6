@@ -1,8 +1,13 @@
+/*
+Класс для работы с заказом в end-point /store/order
+ */
+
+
 package org.example.model;
 
 import com.google.gson.annotations.SerializedName;
 
-public class Order {
+public class Order{
 
     @SerializedName("id")
     private int id;
@@ -26,13 +31,12 @@ public class Order {
         return this.id;
     }
 
-    public void setId(int petId) {
+    public void setId(int id) {
         this.id = id;
     }
 
-
     public int getPetId() {
-        return petId;
+        return this.petId;
     }
 
     public void setPetId(int petId) {
@@ -75,4 +79,6 @@ public class Order {
                         ",complete = '" + complete + '\'' +
                         "}";
     }
+
+
 }

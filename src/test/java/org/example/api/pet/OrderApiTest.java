@@ -1,4 +1,8 @@
-
+/*
+тесты для тестирования работы на сайте https://petstore.swagger.io
+end point /store/order
+в тестах проставлены засыпание потока для корректной работы.
+*/
 
 
 package org.example.api.pet;
@@ -9,6 +13,7 @@ package org.example.api.pet;
         import io.restassured.filter.log.ResponseLoggingFilter;
         import io.restassured.http.ContentType;
         import org.example.model.Order;
+        import org.example.model.Pet;
         import org.testng.Assert;
         import org.testng.annotations.BeforeClass;
         import org.testng.annotations.Test;
@@ -16,13 +21,11 @@ package org.example.api.pet;
         import java.util.Random;
 
         import static io.restassured.RestAssured.given;
-        import static io.restassured.RestAssured.proxy;
+
 
 public class OrderApiTest {
-    private static int id;
     @BeforeClass
     public void prepareOrder() throws IOException {
-
         System.getProperties().load(ClassLoader.getSystemResourceAsStream("my.properties"));
         RestAssured.requestSpecification = new RequestSpecBuilder()
                 .setBaseUri("https://petstore.swagger.io/v2/")
@@ -37,55 +40,60 @@ public class OrderApiTest {
     }
 
     /**
-     * Простейшая проверка: создаём объект, сохраняем на сервере и проверяем, что при запросе возвращается
+     * Простейшая проверка: создаём объект заказа, сохраняем на сервере и проверяем, что при запросе возвращается
      * "тот же" объект
      */
     @Test(priority = 1)
-    public void checkObjectSaveOrder() throws InterruptedException {
+    public void checkObjectSaveOrder() throws InterruptedException, IOException {
+        System.getProperties().load(ClassLoader.getSystemResourceAsStream("my.properties"));
         Order order = new Order();
-         id = (1+new Random().nextInt(10));
+        int ipOrder = Integer.parseInt(System.getProperty("id"));
         int petId = new Random().nextInt(500000);
-        int quantity = (1+new Random().nextInt(10));
-
-        order.setId(id);
+        int quantity = 1;
         order.setPetId(petId);
         order.setQuantity(quantity);
+        order.setId(ipOrder);
 
-        given()
+         given()
                 .body(order)
                 .when()
                 .post("/store/order")
 
-                .then() // ТОГДА: (указывает, что после этой части будут выполняться проверки-утверждения)
-                .statusCode(200); // например проверка кода ответа.он просто выдёргивается из текста ответа
+                .then()
+                .statusCode(200);
 
-        Thread.sleep(100000);
+        Thread.sleep(30000);
         Order actual = (Order)
                 given()
-                        .pathParam("orderId", id)
+                        .pathParam("orderId", ipOrder)
                         .when()
                         .get("/store/order/{orderId}")
                         .then()
                         .statusCode(200)
                         .extract()
-                        .body();
-        Assert.assertEquals(actual.getId(), order.getId());
+                        .body()
+                        .as(Order.class);
+        Assert.assertEquals(actual.getPetId(), order.getPetId());
 
     }
 
+    /**
+     * Удаляем созданный объект заказа, и после этого проверяем - есть ли на сайте тот же объект
+     **/
     @Test (priority = 2)
     public void tetDeleteOrder() throws IOException, InterruptedException {
         Thread.sleep(100000);
         System.getProperties().load(ClassLoader.getSystemResourceAsStream("my.properties"));
+        int idOrder = Integer.parseInt(System.getProperty("id"));
         given()
-                .pathParam("petId", id)
+                .pathParam("orderId", idOrder)
                 .when()
                 .delete("/store/order/{orderId}")
                 .then()
                 .statusCode(200);
         Thread.sleep(100000);
         given()
-                .pathParam("petId", id)
+                .pathParam("orderId", idOrder)
                 .when()
                 .get("/store/order/{orderId}")
                 .then()
